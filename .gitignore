@@ -1,0 +1,10 @@
+
+PareBrise/x64/Debug/
+
+*.log
+
+*.tlog
+
+PareBrise/\.vs/PareBrise/v15/\.suo
+
+PareBrise/PareBrise/PareBrise\.vcxproj
