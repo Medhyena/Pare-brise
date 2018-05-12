@@ -6,7 +6,10 @@
 #include<conio.h>           // may have to modify this line if not using Windows
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-int main() {
+
+void exemple()
+{
+
 	cv::Mat imgOriginal;        // input image
 	cv::Mat imgGrayscale;       // grayscale of input image
 	cv::Mat imgBlurred;         // intermediate blured image
@@ -17,7 +20,7 @@ int main() {
 	if (imgOriginal.empty()) {                                  // if unable to open image
 		std::cout << "error: image not read from file\n\n";     // show error message on command line
 		_getch();                                               // may have to modify this line if not using Windows
-		return(0);                                              // and exit program
+		return;                                              // and exit program
 	}
 
 	cv::cvtColor(imgOriginal, imgGrayscale, CV_BGR2GRAY);       // convert to grayscale
@@ -40,6 +43,35 @@ int main() {
 	cv::imshow("imgCanny", imgCanny);
 
 	cv::waitKey(0);                 // hold windows open until user presses a key
+}
+
+
+int main() {
+
+	cv::Mat imgFog;
+	cv::Mat imgUnfog;
+	cv::Mat imgDiff;
+
+	imgFog = cv::imread("imagefog.png");
+
+	if (imgFog.empty()) {
+		std::cout << "error: image fog, incorrect name\n\n";
+		_getch();
+		return(0);
+	}
+
+	imgUnfog = cv::imread("imageunfog.png");
+
+	if (imgUnfog.empty()) {
+		std::cout << "error: image unfog, incorrect name\n\n";
+		_getch();
+		return(0);
+	}
+
+	cv::absdiff(imgFog, imgUnfog, imgDiff);
+
+	cv::imshow("imgDiff", imgDiff);
+	cv::waitKey(0);
 
 	return(0);
 }
