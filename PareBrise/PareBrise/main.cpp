@@ -45,33 +45,79 @@ void exemple()
 	cv::waitKey(0);                 // hold windows open until user presses a key
 }
 
-
-int main() {
-
+void diffentre2img()
+{
 	cv::Mat imgFog;
 	cv::Mat imgUnfog;
 	cv::Mat imgDiff;
+	cv::Mat imgDiffGray;
 
-	imgFog = cv::imread("imagefog.png");
+	imgFog = cv::imread("imagefog3.png");
 
 	if (imgFog.empty()) {
 		std::cout << "error: image fog, incorrect name\n\n";
 		_getch();
-		return(0);
+		return;
 	}
 
-	imgUnfog = cv::imread("imageunfog.png");
+	imgUnfog = cv::imread("imageunfog3.png");
 
 	if (imgUnfog.empty()) {
 		std::cout << "error: image unfog, incorrect name\n\n";
 		_getch();
-		return(0);
+		return;
 	}
 
 	cv::absdiff(imgFog, imgUnfog, imgDiff);
 
 	cv::imshow("imgDiff", imgDiff);
+
+	cv::cvtColor(imgDiff, imgDiffGray, CV_BGR2GRAY);
+
+	cv::imshow("imgDiffGray", imgDiffGray);
+
+	cv::imwrite("./test.png", imgDiffGray);
+
 	cv::waitKey(0);
+}
+
+void alphablendingimg()
+{
+	// Read the images
+	cv::Mat foreground = cv::imread("dashcam.jpg");
+	cv::Mat background = cv::imread("imageblend1.png");
+	cv::Mat alpha = cv::imread("alpha1.png");
+
+	// Convert Mat to float data type
+	foreground.convertTo(foreground, CV_32FC3);
+	background.convertTo(background, CV_32FC3);
+
+	// Normalize the alpha mask to keep intensity between 0 and 1
+	alpha.convertTo(alpha, CV_32FC3, 1.0 / 255); // 
+
+												 // Storage for output image
+	cv::Mat ouImage = cv::Mat::zeros(foreground.size(), foreground.type());
+
+	// Multiply the foreground with the alpha matte
+	cv::multiply(alpha, foreground, foreground);
+
+	// Multiply the background with ( 1 - alpha )
+	cv::multiply(cv::Scalar::all(1.0) - alpha, background, background);
+
+	// Add the masked foreground and background.
+	cv::add(foreground, background, ouImage);
+
+	// Display image
+	cv::imshow("alpha blended image", ouImage / 255);
+
+	cv::imwrite("./alphablended.png", ouImage);
+
+	cv::waitKey(0);
+}
+
+int main() {
+
+	alphablendingimg();
 
 	return(0);
 }
