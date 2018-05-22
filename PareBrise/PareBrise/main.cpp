@@ -3,11 +3,12 @@
 #include<opencv2/opencv.hpp>
 
 #include<iostream>
+#include<string>
 #include<conio.h>           // may have to modify this line if not using Windows
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-void exemple()
+void Exemple()
 {
 
 	cv::Mat imgOriginal;        // input image
@@ -45,7 +46,7 @@ void exemple()
 	cv::waitKey(0);                 // hold windows open until user presses a key
 }
 
-void diffentre2img()
+void Diffentre2Img()
 {
 	cv::Mat imgFog;
 	cv::Mat imgUnfog;
@@ -81,12 +82,12 @@ void diffentre2img()
 	cv::waitKey(0);
 }
 
-void alphablendingimg()
+void AlphaBlendingImg(std::string foregroundname, std::string backgroundname, std::string alphaname)
 {
 	// Read the images
-	cv::Mat foreground = cv::imread("dashcam.jpg");
-	cv::Mat background = cv::imread("imageblend1.png");
-	cv::Mat alpha = cv::imread("alpha1.png");
+	cv::Mat foreground = cv::imread(foregroundname);
+	cv::Mat background = cv::imread(backgroundname);
+	cv::Mat alpha = cv::imread(alphaname);
 
 	// Convert Mat to float data type
 	foreground.convertTo(foreground, CV_32FC3);
@@ -115,10 +116,109 @@ void alphablendingimg()
 	cv::waitKey(0);
 }
 
-int main() {
+void DiminuerLuminositePixel(cv::Vec3b &color, double pourcent)
+{
+	uchar contraste = (uchar) (pourcent * 255) / 2; // Meilleurs résultats quand on divise par deux
+	// Red
+	int tmp = color[0] - contraste;
+	if (tmp > 255) color[0] = 255;
+	else if (tmp < 0) color[0] = 0;
+	else color[0] = (uchar) tmp;
+	// Green
+	tmp = color[1] - contraste;
+	if (tmp > 255) color[1] = 255;
+	else if (tmp < 0) color[1] = 0;
+	else color[1] = (uchar) tmp;
+	// Blue
+	tmp = color[2] - contraste;
+	if (tmp > 255) color[2] = 255;
+	else if (tmp < 0) color[2] = 0;
+	else color[2] = (uchar) tmp;
+}
 
-	alphablendingimg();
+void AugmenterContrastePixel(cv::Vec3b &color, double pourcent)
+{
+	uchar contraste = (uchar)(pourcent * 255);
+	// Red
+	int tmp = color[0] + (double) (contraste - 128) / 255.0 * (color[0] - 127);
+	if (tmp > 255) color[0] = 255;
+	else if (tmp < 0) color[0] = 0;
+	else color[0] = (uchar)tmp;
+	// Green
+	tmp = color[1] + (double)(contraste - 128) / 255.0 * (color[1] - 127);
+	if (tmp > 255) color[1] = 255;
+	else if (tmp < 0) color[1] = 0;
+	else color[1] = (uchar)tmp;
+	// Blue
+	tmp = color[2] + (double)(contraste - 128) / 255.0 * (color[2] - 127);
+	if (tmp > 255) color[2] = 255;
+	else if (tmp < 0) color[2] = 0;
+	else color[2] = (uchar)tmp;
+}
+
+void DebrumageParContraste(std::string nomImgBrumee)
+{
+	cv::Mat imgBrumee = cv::imread(nomImgBrumee);
+
+	for (int i = 0; i < imgBrumee.rows; i++)
+	{
+		for (int j = 0; j < imgBrumee.cols; j++)
+		{
+			cv::Vec3b color = imgBrumee.at<cv::Vec3b>(cv::Point(j, i));
+			double pourcent = (double) 1 - (double) i / (imgBrumee.rows - 1);
+			DiminuerLuminositePixel(color, pourcent);
+			AugmenterContrastePixel(color, pourcent);
+			imgBrumee.at<cv::Vec3b>(cv::Point(j, i)) = color;
+		}
+	}
+	cv::imshow("coucou", imgBrumee);
+	cv::Mat imgOrig = cv::imread(nomImgBrumee);
+	cv::Mat imgDiff;
+	cv::absdiff(imgBrumee, imgOrig, imgDiff);
+	cv::imshow("BAH MANGE TES MORTS", imgDiff);
+	cv::waitKey(0);
+}
+
+void DebrumageParContrasteVideo(std::string nomVidBrumee)
+{
+	cv::VideoCapture capture(nomVidBrumee);
+	cv::Mat imgBrumee;
+
+	cv::namedWindow("w", 1);
+	for (; ; )
+	{
+		capture >> imgBrumee;
+		if (imgBrumee.empty())
+			break;
+		for (int i = 0; i < imgBrumee.rows; i++)
+		{
+			for (int j = 0; j < imgBrumee.cols; j++)
+			{
+				cv::Vec3b color = imgBrumee.at<cv::Vec3b>(cv::Point(j, i));
+				double pourcent = (double)1 - (double)i / (imgBrumee.rows - 1);
+				DiminuerLuminositePixel(color, pourcent);
+				AugmenterContrastePixel(color, pourcent);
+				imgBrumee.at<cv::Vec3b>(cv::Point(j, i)) = color;
+			}
+		}
+		cv::imshow("w", imgBrumee);
+		cv::waitKey(1); // waits to display frame
+	}
+
+	/*
+	cv::imshow("coucou", imgBrumee);
+	cv::Mat imgOrig = cv::imread(nomImgBrumee);
+	cv::Mat imgDiff;
+	cv::absdiff(imgBrumee, imgOrig, imgDiff);
+	cv::imshow("BAH MANGE TES MORTS", imgDiff);
+	cv::waitKey(0);*/
+}
+
+int main()
+{
+	//AlphaBlendingImg("dashcam.jpg", "imageblend1.png", "alpha1.png");
+	//DebrumageParContraste("imagefog2.png");
+	DebrumageParContrasteVideo("test.mp4");
 
 	return(0);
 }
-
