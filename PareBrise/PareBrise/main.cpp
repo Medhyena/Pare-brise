@@ -116,6 +116,58 @@ void AlphaBlendingImg(std::string foregroundname, std::string backgroundname, st
 	cv::waitKey(0);
 }
 
+void AlphaBlendingVideo(std::string nomVidBlend, std::string nomVidBackground, std::string nomVidAlpha)
+{
+	cv::VideoCapture captureBlend(nomVidBlend);
+	cv::VideoCapture captureBackground(nomVidBackground);
+	cv::VideoCapture captureAlpha(nomVidAlpha);
+	cv::Mat foreground;
+	cv::Mat background;
+	cv::Mat alpha;
+
+	cv::namedWindow("w", 1);
+	for (; ; )
+	{
+		captureBlend >> foreground;
+		captureBackground >> background;
+		captureAlpha >> alpha;
+
+		if (foreground.empty())
+			break;
+		if (background.empty())
+			break;
+		if (alpha.empty())
+			break;
+
+		// Convert Mat to float data type
+		foreground.convertTo(foreground, CV_32FC3);
+		background.convertTo(background, CV_32FC3);
+
+		// Normalize the alpha mask to keep intensity between 0 and 1
+		alpha.convertTo(alpha, CV_32FC3, 1.0 / 255); // 
+
+													 // Storage for output image
+		cv::Mat ouImage = cv::Mat::zeros(foreground.size(), foreground.type());
+
+		// Multiply the foreground with the alpha matte
+		cv::multiply(alpha, foreground, foreground);
+
+		// Multiply the background with ( 1 - alpha )
+		cv::multiply(cv::Scalar::all(1.0) - alpha, background, background);
+
+		// Add the masked foreground and background.
+		cv::add(foreground, background, ouImage);
+
+		// Display image
+		cv::imshow("alpha blended image", ouImage / 255);
+
+		cv::waitKey(1);
+	}
+	captureBlend.release();
+	captureBackground.release();
+	captureAlpha.release();
+}
+
 void DiminuerLuminositePixel(cv::Vec3b &color, double pourcent)
 {
 	uchar contraste = (uchar) (pourcent * 255) / 2; // Meilleurs résultats quand on divise par deux
@@ -201,24 +253,17 @@ void DebrumageParContrasteVideo(std::string nomVidBrumee)
 				imgBrumee.at<cv::Vec3b>(cv::Point(j, i)) = color;
 			}
 		}
-		cv::imshow("w", imgBrumee);
+		cv::imshow("Rendu vidéo", imgBrumee);
 		cv::waitKey(1); // waits to display frame
 	}
-
-	/*
-	cv::imshow("coucou", imgBrumee);
-	cv::Mat imgOrig = cv::imread(nomImgBrumee);
-	cv::Mat imgDiff;
-	cv::absdiff(imgBrumee, imgOrig, imgDiff);
-	cv::imshow("BAH MANGE TES MORTS", imgDiff);
-	cv::waitKey(0);*/
+	capture.release();
 }
 
 int main()
 {
 	//AlphaBlendingImg("dashcam.jpg", "imageblend1.png", "alpha1.png");
 	//DebrumageParContraste("imagefog2.png");
-	DebrumageParContrasteVideo("test.mp4");
+	DebrumageParContrasteVideo("test360p.mp4");
 
 	return(0);
 }
