@@ -1,0 +1,5 @@
+luminosité /2 /2.5 /3
+logarithme :
+log(exp(1) - (double)i / (double)imgBrumee.rows)
+log(exp(1) - i / (imgBrumee.rows * 3.0 / 4.0))
+log(exp(1) - i / (imgBrumee.rows * 2.0 / 3.0))
