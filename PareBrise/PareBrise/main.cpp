@@ -28,7 +28,6 @@ void comparaisonNettete(int numImg)
 	cv::Mat imgFog;
 	cv::Mat imgNousExp;
 	cv::Mat imgNousLog;
-	cv::Mat imgNousLog2;
 	cv::Mat imgUnfog;
 
 	imgFog = cv::imread("./Images/ImagesOriginales/imagefog" + std::to_string(numImg) + ".png");
@@ -67,38 +66,32 @@ void comparaisonNettete(int numImg)
 	cv::cvtColor(imgUnfog, imgUnfog, CV_BGR2GRAY);
 	cv::cvtColor(imgNousExp, imgNousExp, CV_BGR2GRAY);
 	cv::cvtColor(imgNousLog, imgNousLog, CV_BGR2GRAY);
-	cv::cvtColor(imgNousLog2, imgNousLog2, CV_BGR2GRAY);
 
 	blur(imgFog, imgFog, cv::Size(3, 3));
 	blur(imgUnfog, imgUnfog, cv::Size(3, 3));
 	blur(imgNousExp, imgNousExp, cv::Size(3, 3));
 	blur(imgNousLog, imgNousLog, cv::Size(3, 3));
-	blur(imgNousLog2, imgNousLog2, cv::Size(3, 3));
 
 	cv::Canny(imgFog, imgFog, 20, 60, 3);
 	cv::Canny(imgUnfog, imgUnfog, 20, 60, 3);
 	cv::Canny(imgNousExp, imgNousExp, 20, 60, 3);
 	cv::Canny(imgNousLog, imgNousLog, 20, 60, 3);
-	cv::Canny(imgNousLog2, imgNousLog2, 20, 60, 3);
 	
 	imgFog.convertTo(imgFog, CV_8U);
 	imgUnfog.convertTo(imgUnfog, CV_8U);
 	imgNousExp.convertTo(imgNousExp, CV_8U);
 	imgNousLog.convertTo(imgNousLog, CV_8U);
-	imgNousLog2.convertTo(imgNousLog2, CV_8U);
 
-	double tableaunettete[5];
+	double tableaunettete[4];
 
 	tableaunettete[0] = netteteCalcul(imgFog);
 	tableaunettete[1] = netteteCalcul(imgNousExp);
 	tableaunettete[2] = netteteCalcul(imgNousLog);
-	tableaunettete[3] = netteteCalcul(imgNousLog2);
-	tableaunettete[4] = netteteCalcul(imgUnfog);
+	tableaunettete[3] = netteteCalcul(imgUnfog);
 
 	tableaunettete[1] /= tableaunettete[0];
 	tableaunettete[2] /= tableaunettete[0];
 	tableaunettete[3] /= tableaunettete[0];
-	tableaunettete[4] /= tableaunettete[0];
 	tableaunettete[0] /= tableaunettete[0];
 
 
@@ -106,8 +99,7 @@ void comparaisonNettete(int numImg)
 	std::cout << "Image de base brumee:\t" << tableaunettete[0] << std::endl;
 	std::cout << "Image debrumee exp:\t" << tableaunettete[1] << std::endl;
 	std::cout << "Image debrumee log:\t" << tableaunettete[2] << std::endl;
-	std::cout << "Image debrumee log2:\t" << tableaunettete[3] << std::endl;
-	std::cout << "Image debrumee DEFADE:\t" << tableaunettete[4] << std::endl;
+	std::cout << "Image debrumee DEFADE:\t" << tableaunettete[3] << std::endl;
 
 	_getch();
 }
@@ -453,12 +445,13 @@ int main()
 {
 	//AlphaBlendingImg("dashcam.jpg", "imageblend1.png", "alpha1.png");
 	//DebrumageParContrasteVideo("test720p.mp4");
+	/*
 	for (int i = 1; i < 8; i++)
 	{
 		DebrumageParContraste(i);
 		CannyTest(i);
-	}
-	//comparaisonNettete(4);
+	}*/
+	comparaisonNettete(6);
 
 	return(0);
 }
