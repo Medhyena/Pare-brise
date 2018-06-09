@@ -451,7 +451,7 @@ int main()
 		DebrumageParContraste(i);
 		CannyTest(i);
 	}*/
-	comparaisonNettete(6);
+	comparaisonNettete(7);
 
 	return(0);
 }
